@@ -1,15 +1,13 @@
 :- [../src/differentiate].
 
-wrap_test(Name,ToCall):-
-    ( time(call(ToCall)) ->
-    	ansi_format([bold,fg(green)], 'Passed ~w~n', [Name]);
-        ansi_format([bold,fg(red)], 'Failed ~w~n', [Name]),
+test_constant:-
+    diff(1,x,Fx),
+    ( Fx = 0 ->
+    	ansi_format([bold,fg(green)], 'Passed constant~n');
+        ansi_format([bold,fg(red)], 'Failed constant: ~w -> ~w~n', [Name,Fx,0]),
         false
     ).
 
-
-test_constant:-
-    wrap_test('constant',diff(1,x,0)).
 test_variable:-
     wrap_test('variable',diff(x,x,1)).
 test_power_2:-
