@@ -1,21 +1,49 @@
-:- [../src/differentiate].
+:- ['../src/differentiate'].
+
+test:-
+    test_constant,test_variable,test_power_2,test_power_3,test_power_no_var.
 
 test_constant:-
-    diff(1,x,Fx),
+    differentiate(1,x,Fx,_,_),
     ( Fx = 0 ->
-    	ansi_format([bold,fg(green)], 'Passed constant~n');
-        ansi_format([bold,fg(red)], 'Failed constant: ~w -> ~w~n', [Name,Fx,0]),
+    	ansi_format([bold,fg(green)], 'Passed constant~n',[]);
+        ansi_format([bold,fg(red)], 'Failed constant: ~w -> ~w~n', [Fx,0]),
         false
     ).
 
 test_variable:-
-    wrap_test('variable',diff(x,x,1)).
+    differentiate(x,x,Fx,_,_),
+    ( Fx = 1 ->
+    	ansi_format([bold,fg(green)], 'Passed variable~n',[]);
+        ansi_format([bold,fg(red)], 'Failed variable: ~w -> ~w~n', [Fx,1]),
+        false
+    ).
+
 test_power_2:-
-    wrap_test('power_2',diff(x^2,x,2x)).
+    differentiate(x^2,x,Fx,_,_),
+    ( Fx = 2*x ->
+    	ansi_format([bold,fg(green)], 'Passed power 2~n',[]);
+        ansi_format([bold,fg(red)], 'Failed power 2: ~w -> ~w~n', [Fx,2*x]),
+        false
+    ).
+
 test_power_3:-
-    wrap_test('power_3',diff(x^3,x,3x^2)).
+    differentiate(x^3,x,Fx,_,_),
+    ( Fx = 3*x^2 ->
+    	ansi_format([bold,fg(green)], 'Passed power 3~n',[]);
+        ansi_format([bold,fg(red)], 'Failed power 3: ~w -> ~w~n', [Fx,3*x^2]),
+        false
+    ).
+
 test_power_no_var:-
-    wrap_test('power_no_var',diff(x^3,y,0)).
-test_power_mul:-
-    wrap_test('power_no_var',diff(y*x^3,y,x^3)).
+    differentiate(x^3,y,Fx,_,_),
+    ( Fx = 0 ->
+    	ansi_format([bold,fg(green)], 'Passed power no var 2~n',[]);
+        ansi_format([bold,fg(red)], 'Failed power no var: ~w -> ~w~n', [Fx,0]),
+        false
+    ).
+
+
+% test_power_mul:-
+%     wrap_test('power_no_var',differentiate(y*x^3,y,x^3)).
 
