@@ -23,7 +23,6 @@ Print steps? This is interesting
 C api?
 
 ## Command Line Options
---evaluate
---print-steps
-
-others
+--evaluate: solve the derivative numerically
+--print-steps: print the steps
+--print-latex: generate a .tex file with steps

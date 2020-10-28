@@ -2,15 +2,15 @@
 % https://www.math.it/formulario/derivate.htm
 
 % constant: 0
-% diff(X,_,0):- number(X).
+diff(X,Y,0,[constant],[d/d(Y:X) -> 0]):- number(X).
 
 % d/dx x -> 1 or d/dx y -> 0
-diff(X,Y,Res,[],[]):-
+diff(X,Y,Res,[single],[d/d(Y:X) -> Res]):-
     atom(X),
     ( X \== Y -> Res = 0; Res = 1).
 
 % constant * function: (k * f)' = k*f'
-diff(K * F, Var, K * DF, [constant | TN], [d/d(Var : K*F) -> DF | TF]):-
+diff(K * F, Var, K * DF, [constant*function | TN], [d/d(Var : K*F) -> K*DF | TF]):-
     number(K),
     diff(F,Var,DF,TN,TF).
 
@@ -20,14 +20,14 @@ diff(F + G, Var, DF + DG, [sum_rule, TN1|TN2], [d/d(Var : F + G) -> DF + DG, TF1
 	diff(G, Var, DG,TN2,TF2).
 
 % product rule: (f*g)' = f'*g + f*g'
-diff(F * G, Var, DF * G + DG * F, [product_rule, TN1|TN2], [d/d(Var : F + G) -> DF + DG , TF1|TF2]) :-
+diff(F * G, Var, DF * G + DG * F, [product_rule, TN1|TN2], [d/d(Var : F + G) ->  DF * G + DG * F, TF1|TF2]) :-
 	diff(F, Var, DF,TN1,TF1),
 	diff(G, Var, DG, TN2,TF2).
 
 % quotient rule: (f/g)' = (f'*g + f*g') / g^2
-% diff(F / G, Var, (DF * G - DG * F) / G^2) :-
-% 	diff(F, Var, DF),
-% 	diff(G, Var, DG).
+diff(F / G, Var, (DF * G - DG * F) / G^2, [quotient_rule, TN1|TN2], [d/d(Var : F / G) -> (DF * G - DG * F) / G^2, TF1|TF2]) :-
+	diff(F, Var, DF,TN1,TF1),
+	diff(G, Var, DG,TN2,TF2).
 
 % power function
 % d(x^n)/dx -> n*x^{n-1}
@@ -61,6 +61,6 @@ quick_check(Expression,DerivVar,Res):-
 % 2*1*y+0*(2*x) -> 2*y
 remove_zeros_ones(R,R).
 
-differentiate(Forumla,Variable,Result,Rules,Operations):-
-    diff(Forumla,Variable,Result1,Rules,Operations),
+differentiate(Formula,Variable,Result,Rules,Operations):-
+    diff(Formula,Variable,Result1,Rules,Operations),
     remove_zeros_ones(Result1,Result).
