@@ -31,6 +31,13 @@ diff(F / G, Var, (DF * G - DG * F) / G^2, [quotient_rule, TN1|TN2], [d/d(Var : F
 
 % power function
 % d(x^n)/dx -> n*x^{n-1}
+diff(F^N,Var,N*F^N1,[power_rule],[d/d(Var:F^N) -> N*F^N1]):-
+    Var = F,
+    number(N),
+    N1 is N - 1.
+diff(F^N,Var,0,[power_rule],[d/d(Var:F^N) -> 0]):-
+    Var \= F,
+    number(N).
 
 % absolute value
 % d abs(x) / dx -> abs(x) / x

@@ -21,7 +21,7 @@ test_variable:-
 
 test_power_2:-
     differentiate(x^2,x,Fx,_,_),
-    ( Fx = 2*x ->
+    ( Fx = 2*x^1 ->
     	ansi_format([bold,fg(green)], 'Passed power 2~n',[]);
         ansi_format([bold,fg(red)], 'Failed power 2: ~w -> ~w~n', [Fx,2*x]),
         false
