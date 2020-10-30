@@ -41,8 +41,15 @@ diff(F^N,Var,0,[power_rule],[d/d(Var:F^N) -> 0]):-
 
 % absolute value
 % d abs(x) / dx -> abs(x) / x
-% diff(abs(X),Var,abs(X)/X):-
-%     diff(X,Var,DF).
+diff(abs(X),X,abs(X)/X,[absolute_value],[d/d(X:abs(X)) -> abs(X)/X]):-
+    atom(X).
+diff(abs(X),Var,0,[absolute_value],[d/d(Var:abs(X)) -> 0]):-
+    atom(X),
+    X \= Var.
+% if it is a function, (abs(f)/f) * f'
+diff(abs(X),Var,X*DX/abs(X),[absolute_value | TN],[d/d(Var:abs(X)) -> X*DX/abs(X) | TF]):-
+    compound(X),
+    diff(X,Var,DX,TN,TF).
 
 % logarithm
 % d log(x) / dx -> 1/x
@@ -53,9 +60,24 @@ diff(F^N,Var,0,[power_rule],[d/d(Var:F^N) -> 0]):-
 
 % trigonometric functions
 % d sin(x) / dx -> cos(x)
+diff(sin(X),X,cos(X),[sin],[d/d(X:sin(X)) -> cos(X)]):-
+    atom(X).
+diff(sin(X),Var,0,[sin],[d/d(Var:sin(X)) -> 0]):-
+    atom(X),
+    X \= Var.
+
 % d cos(x) / dx -> -sin(x)
+diff(cos(X),X,-sin(X),[cos],[d/d(X:cos(X)) -> -sin(X)]):-
+    atom(X).
+diff(cos(X),Var,0,[cos],[d/d(Var:cos(X)) -> 0]):-
+    atom(X),
+    X \= Var.
+
+
 % d tan(x) / dx -> 1 + tan^2(x)
 % d cot(x) / dx -> -(1 + cot^2(x))
+
+% composite function
 
 % check if the variable to be integrated is in the expression
 % if so, perform the operations, otherwise return 0
