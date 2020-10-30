@@ -1,6 +1,9 @@
 % prolog module to implement differentiation
 % https://www.math.it/formulario/derivate.htm
 
+% TODO: wrap all cases where the variable derivation is not the one 
+% in the function (0)
+
 % constant: 0
 diff(X,Y,0,[constant],[d/d(Y:X) -> 0]):- number(X).
 
@@ -29,15 +32,16 @@ diff(F / G, Var, (DF * G - DG * F) / G^2, [quotient_rule, TN1|TN2], [d/d(Var : F
 	diff(F, Var, DF,TN1,TF1),
 	diff(G, Var, DG,TN2,TF2).
 
+% derivata del reciproco di una funzione
+
 % power function
 % d(x^n)/dx -> n*x^{n-1}
-diff(F^N,Var,N*F^N1,[power_rule],[d/d(Var:F^N) -> N*F^N1]):-
-    Var = F,
+diff(F^N,F,N*F^N1,[power_rule],[d/d(F:F^N) -> N*F^N1]):-
     number(N),
     N1 is N - 1.
 diff(F^N,Var,0,[power_rule],[d/d(Var:F^N) -> 0]):-
-    Var \= F,
-    number(N).
+number(N),
+    Var \= F.
 
 % absolute value
 % d abs(x) / dx -> abs(x) / x
@@ -52,7 +56,18 @@ diff(abs(X),Var,X*DX/abs(X),[absolute_value | TN],[d/d(Var:abs(X)) -> X*DX/abs(X
     diff(X,Var,DX,TN,TF).
 
 % logarithm
-% d log(x) / dx -> 1/x
+% d ln(x) / dx -> 1/x
+diff(ln(X),X,1/X,[logarithm],[d/d(X:ln(X)) -> 1/X]):-
+    atom(X).
+diff(ln(X),Var,0,[logarithm],[d/d(Var:ln(X)) -> 0]):-
+    atom(X),
+    X \= Var.
+% ln(abs(x)) -> 1/x
+diff(ln(abs(X)),X,1/X,[logarithm_abs],[d/d(X:ln(abs(X))) -> 1/X]):-
+    atom(X).
+diff(ln(abs(X)),Var,0,[logarithm_abs],[d/d(Var:ln(abs(X))) -> 0]):-
+    atom(X),
+    X \= Var.
 
 % exponential
 % d (a^x) / dx -> (a^x) * ln(a)
@@ -73,18 +88,32 @@ diff(cos(X),Var,0,[cos],[d/d(Var:cos(X)) -> 0]):-
     atom(X),
     X \= Var.
 
-
 % d tan(x) / dx -> 1 + tan^2(x)
-% d cot(x) / dx -> -(1 + cot^2(x))
+diff(tan(X),X,1+tan^2(X),[tan],[d/d(X:tan(X)) -> -1+tan^(X)]):-
+    atom(X).
+diff(tan(X),Var,0,[tan],[d/d(Var:tan(X)) -> 0]):-
+    atom(X),
+    X \= Var.
 
-% composite function
+% d cot(x) / dx -> -(1 + cot^2(x))
+diff(cot(X),X,-(1+cot^2(X)),[cot],[d/d(X:cot(X)) -> -(1+cot^2(X))]):-
+    atom(X).
+diff(tan(X),Var,0,[cot],[d/d(Var:cot(X)) -> 0]):-
+    atom(X),
+    X \= Var.
+
+% a^f(X)
+% e^f(X)
+% f(x)^n
+
+% composite function (last one)
 
 % check if the variable to be integrated is in the expression
 % if so, perform the operations, otherwise return 0
 quick_check(Expression,DerivVar,Res):-
     term_to_atom(Expression,C),
     atom_chars(C,LC),
-    ( memberchk(x,LC) -> true ; Res = 0).
+    ( memberchk(DerivVar,LC) -> true ; Res = 0).
 
 % simplify expression containing 0*_ or 1*_
 % 2*1*y+0*(2*x) -> 2*y
