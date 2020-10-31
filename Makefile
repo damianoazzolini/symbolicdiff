@@ -3,7 +3,7 @@ all:
 
 clean:
 	rm symdiff
-	
-makecheck:
+
+check:
 	@echo "running prolog tests"
 	swipl -s test/test.pl -g test -t halt

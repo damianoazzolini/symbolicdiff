@@ -3,7 +3,7 @@
 
 :- module(differentiate,[differentiate/2,differentiate/5,evaluate/3]).
 
-reserved_words([sin,cos,tan,cot,sqrt,ln,e,abs]).
+reserved_words([sin,cos,tan,cot,sqrt,ln,e,pi,abs]).
 
 % TODO: wrap all cases where the variable derivation is not the one 
 % in the function (0)
@@ -41,11 +41,15 @@ diff(F / G, Var, (DF * G - DG * F) / G^2, [quotient_rule, TN1|TN2], [d/d(Var : F
 % power function
 % d(x^n)/dx -> n*x^{n-1}
 diff(F^N,F,N*(F^N1),[power_rule],[d/d(F:F^N) -> N*(F^N1)]):-
+    atom(F),
     number(N),
     N1 is N - 1.
 diff(F^N,Var,0,[power_rule],[d/d(Var:F^N) -> 0]):-
+    atom(F),
     number(N),
     Var \= F.
+diff(sqrt2(X),X,1/(2*sqrt(X)),[power_rule],[d/d(X:sqrt2(X)) -> 1/(2*sqrt(X))]):-
+    atom(X).
 
 % absolute value
 % d abs(x) / dx -> abs(x) / x
@@ -75,7 +79,17 @@ diff(ln(abs(X)),Var,0,[logarithm_abs],[d/d(Var:ln(abs(X))) -> 0]):-
 
 % exponential
 % d (a^x) / dx -> (a^x) * ln(a)
+diff(A^X,X,(A^X)*ln(A),[exponential],[d/d(X:A^X) -> (A^X)*ln(A)]):-
+    number(A),
+    atom(X),
+    A \= e.
+diff(A^X,Y,0,[exponential],[d/d(X:A^X) -> 0]):-
+    number(A),
+    atom(X),
+    X \= Y.
 % d (e^x) / dx -> e^x
+diff(e^X,X,e^X,[exponential],[d/d(X:e^X) -> e^X]):-
+    atom(X).
 
 % trigonometric functions
 % d sin(x) / dx -> cos(x)
@@ -107,10 +121,26 @@ diff(tan(X),Var,0,[cot],[d/d(Var:cot(X)) -> 0]):-
     X \= Var.
 
 % a^f(X)
+diff(A^FX,X,(A^FX)*ln(A)*DF,[composite | TN],[d/d(X:A^FX) -> (A^FX)*ln(A)*DF | TF]):-
+    number(A),
+    A \= e,
+    diff(FX,X,DF,TN,TF).
 % e^f(X)
+diff(e^FX,X,(e^FX)*DF,[composite | TN],[d/d(X:e^FX) -> (e^FX)*DF | TF]):-
+    diff(FX,X,DF,TN,TF).
 % f(x)^n
+diff(FX^N,X,N*(FX^N1)*DF,[composite | TN],[d/d(X:FX^N) -> N*(FX^N1)*DF | TF]):-
+    compound(FX),
+    number(N),
+    N1 is N-1,
+    diff(FX,X,DF,TN,TF).
 
-% composite function (last one)
+% exponential composite: TODO
+
+% inverse function: TODO
+
+% composite function (last one): TODO
+
 
 % check if the variable to be integrated is in the expression
 % if so, perform the operations, otherwise return 0
