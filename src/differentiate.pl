@@ -1,6 +1,10 @@
 % prolog module to implement differentiation
 % https://www.math.it/formulario/derivate.htm
 
+:- module(differentiate,[differentiate/2,differentiate/5,evaluate/3]).
+
+reserved_words([sin,cos,tan,cot,sqrt,ln,e,abs]).
+
 % TODO: wrap all cases where the variable derivation is not the one 
 % in the function (0)
 
@@ -13,7 +17,7 @@ diff(X,Y,Res,[single],[d/d(Y:X) -> Res]):-
     ( X \== Y -> Res = 0; Res = 1).
 
 % constant * function: (k * f)' = k*f'
-diff(K * F, Var, K * DF, [constant*function | TN], [d/d(Var : K*F) -> K*DF | TF]):-
+diff(K * F, Var, K * (DF), [constant*function | TN], [d/d(Var : K*F) -> K*(DF) | TF]):-
     number(K),
     diff(F,Var,DF,TN,TF).
 
@@ -36,11 +40,11 @@ diff(F / G, Var, (DF * G - DG * F) / G^2, [quotient_rule, TN1|TN2], [d/d(Var : F
 
 % power function
 % d(x^n)/dx -> n*x^{n-1}
-diff(F^N,F,N*F^N1,[power_rule],[d/d(F:F^N) -> N*F^N1]):-
+diff(F^N,F,N*(F^N1),[power_rule],[d/d(F:F^N) -> N*(F^N1)]):-
     number(N),
     N1 is N - 1.
 diff(F^N,Var,0,[power_rule],[d/d(Var:F^N) -> 0]):-
-number(N),
+    number(N),
     Var \= F.
 
 % absolute value
@@ -51,7 +55,7 @@ diff(abs(X),Var,0,[absolute_value],[d/d(Var:abs(X)) -> 0]):-
     atom(X),
     X \= Var.
 % if it is a function, (abs(f)/f) * f'
-diff(abs(X),Var,X*DX/abs(X),[absolute_value | TN],[d/d(Var:abs(X)) -> X*DX/abs(X) | TF]):-
+diff(abs(X),Var,(X*DX)/abs(X),[absolute_value | TN],[d/d(Var:abs(X)) -> (X*DX)/abs(X) | TF]):-
     compound(X),
     diff(X,Var,DX,TN,TF).
 
@@ -89,14 +93,14 @@ diff(cos(X),Var,0,[cos],[d/d(Var:cos(X)) -> 0]):-
     X \= Var.
 
 % d tan(x) / dx -> 1 + tan^2(x)
-diff(tan(X),X,1+tan^2(X),[tan],[d/d(X:tan(X)) -> -1+tan^(X)]):-
+diff(tan(X),X,1+tan(X)^2,[tan],[d/d(X:tan(X)) -> -1+tan(X)^2]):-
     atom(X).
 diff(tan(X),Var,0,[tan],[d/d(Var:tan(X)) -> 0]):-
     atom(X),
     X \= Var.
 
 % d cot(x) / dx -> -(1 + cot^2(x))
-diff(cot(X),X,-(1+cot^2(X)),[cot],[d/d(X:cot(X)) -> -(1+cot^2(X))]):-
+diff(cot(X),X,-(1+cot(X)^2),[cot],[d/d(X:cot(X)) -> -(1+cot(X)^2)]):-
     atom(X).
 diff(tan(X),Var,0,[cot],[d/d(Var:cot(X)) -> 0]):-
     atom(X),
@@ -119,6 +123,41 @@ quick_check(Expression,DerivVar,Res):-
 % 2*1*y+0*(2*x) -> 2*y
 remove_zeros_ones(R,R).
 
+% replace variables
+replace(TermFind, TermReplace, Compound, CompOut) :-
+    ( Compound == TermFind -> 
+        CompOut = TermReplace ;    
+            Compound =.. [F|Args0],
+            maplist(replace(TermFind,TermReplace), Args0, Args),
+            CompOut =.. [F|Args]
+    ).
+
+replace_vars(Res,[],Res):- !.
+replace_vars(Res,[[Find,Replace]|T],Result):-
+    replace(Find,Replace,Res,Res0),
+    replace_vars(Res0,T,Result).
+
+% compute symbolic derivation
 differentiate(Formula,Variable,Result,Rules,Operations):-
     diff(Formula,Variable,Result1,Rules,Operations),
     remove_zeros_ones(Result1,Result).
+
+differentiate(Formula,Variable):-
+    diff(Formula,Variable,Result1,_,_),
+    remove_zeros_ones(Result1,Result),
+    writeln(Result).
+
+
+% evaluate the derivative
+% VariablesList is a list of lists of the form [[x,1],[y,2]]
+evaluate(Formula,VariablesList,Result):-
+    % TODO: check that all the variables are in the list
+    % TODO: check that the list is well formed
+    differentiate(Formula,_,SymbolicResult),
+    replace_vars(SymbolicResult,VariablesList,ToEvaluate),
+    Result is ToEvaluate.
+
+jacobian(_,_):- true.
+hessian(_,_):- true.
+evaluate_nth(_):- true.
+

@@ -10,9 +10,10 @@ test:-
     wrap_test(absolute_2,abs(x),y,0),
     wrap_test(absolute_3,abs(sin(x)),x,sin(x)*cos(x)/abs(sin(x))),
     wrap_test(absolute_4,abs(sin(x^2)),x,cos(x^2)*2*x*sin(x^2)/abs(sin(x^2))),
-    wrap_test(logarithm,log(x),x,1/x),
-    wrap_test(logarithm_abs,log(abs(x)),x,1/x),
-    wrap_test(tan,tan(x),x,1+tan^2(x)),.
+    wrap_test(logarithm,ln(x),x,1/x),
+    wrap_test(logarithm_abs,ln(abs(x)),x,1/x),
+    wrap_test(tan,tan(x),x,1+tan(x)^2),
+    wrap_test(cot,cot(x),x,-(1+cot(X)^2)).
 
 
 wrap_test(TestName,Equation,Variable,ExpectedResult):-
