@@ -18,9 +18,9 @@ gradient(x*y*z) -> y*z, x*z, x*y
 jacobian(x*y*z) -> prints the jacobian matrix
 hessian(x*y*z) -> prints the hessian matrix
 
-Also evaluate derivatives?
-Print steps? This is interesting
-C api?
+Evaluate derivatives
+Print steps
+C api
 
 ## Command Line Options
 --evaluate: solve the derivative numerically

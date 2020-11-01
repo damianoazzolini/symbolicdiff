@@ -4,6 +4,9 @@
 :- module(differentiate,[differentiate/2,differentiate/5,evaluate/3]).
 
 reserved_words([sin,cos,tan,cot,sqrt,ln,e,pi,abs]).
+functions([sin,cos,tan,cot,sqrt,ln,abs]).
+builtin_values([e,pi]).
+
 
 % TODO: wrap all cases where the variable derivation is not the one 
 % in the function (0)
@@ -35,8 +38,6 @@ diff(F * G, Var, DF * G + DG * F, [product_rule, TN1|TN2], [d/d(Var : F + G) -> 
 diff(F / G, Var, (DF * G - DG * F) / G^2, [quotient_rule, TN1|TN2], [d/d(Var : F / G) -> (DF * G - DG * F) / G^2, TF1|TF2]) :-
 	diff(F, Var, DF,TN1,TF1),
 	diff(G, Var, DG,TN2,TF2).
-
-% derivata del reciproco di una funzione
 
 % power function
 % d(x^n)/dx -> n*x^{n-1}
@@ -135,12 +136,33 @@ diff(FX^N,X,N*(FX^N1)*DF,[composite | TN],[d/d(X:FX^N) -> N*(FX^N1)*DF | TF]):-
     N1 is N-1,
     diff(FX,X,DF,TN,TF).
 
-% exponential composite: TODO
+% exponential composite
+diff((FX)^(GX),X,(FX)^(GX)*(DG*ln(FX) + (GX*DF)/FX),[exponential_composite, TN1 | TN2],[d/d(X:FX^GX) -> (FX)^(GX)*(DG*ln(FX) + (GX*DF)/FX), TF1 | TF2]):-
+    compound(FX),
+    compound(GX),
+    diff(FX,X,DF,TN1,TF1),
+    diff(GX,X,DG,TN2,TF2).
 
-% inverse function: TODO
+% reciprocal function
+diff(1/FX,X,-(DF)/((FX)^2),[reciprocal | TN],[d/d(X:1/FX) -> -(DF)/((FX)^2) | TF]):-
+    compound(FX),
+    diff(FX,X,DF,TN,TF).
+
+diff(cos,-sin).
+diff(sin,cos).
+diff(ln(A),1/A).
+diff(sqrt(A),1/(2*sqrt(A))).
 
 % composite function (last one): TODO
-
+diff(A,X,Composite*DG,[reciprocal, TN1 | TN2],[d/d(X:A) -> Composite*DG, TF1 | TF2]):-
+    compound(A),
+    A =..[FX|GX],
+    functions(LF),
+    member(FX,LF),
+    diff(FX,X,DF,TN1,TF1),
+    diff(GX,X,DG,TN2,TF2),
+    DF =..[DFF,_],
+    Composite =..[DFF,T2].
 
 % check if the variable to be integrated is in the expression
 % if so, perform the operations, otherwise return 0
@@ -167,7 +189,7 @@ replace_vars(Res,[[Find,Replace]|T],Result):-
     replace(Find,Replace,Res,Res0),
     replace_vars(Res0,T,Result).
 
-% compute symbolic derivation
+% compute symbolic derivative
 differentiate(Formula,Variable,Result,Rules,Operations):-
     diff(Formula,Variable,Result1,Rules,Operations),
     remove_zeros_ones(Result1,Result).

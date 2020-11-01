@@ -20,6 +20,9 @@ test:-
     wrap_test(composite_exp_num,3^sin(x),x,(3^sin(x))*ln(3)*cos(x)),
     wrap_test(composite_exp_e,e^sin(x),x,(e^sin(x))*cos(x)),
     wrap_test(composite_sin_3,sin(x)^3,x,3*(sin(x)^2)*cos(x)).
+    % exponential composite
+    % reciprocal function
+    % composite function (last one)
 
 
 wrap_test(TestName,Equation,Variable,ExpectedResult):-
