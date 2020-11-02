@@ -1,3 +1,5 @@
 a.out
 symdiff
 temp.tmp
+main.o
+symdiff.o

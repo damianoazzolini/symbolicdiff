@@ -2,6 +2,7 @@
 % https://www.math.it/formulario/derivate.htm
 
 :- module(differentiate,[differentiate/2,differentiate/5,evaluate/3]).
+:- discontiguous differentiate:diff/5.
 
 reserved_words([sin,cos,tan,cot,sqrt,ln,e,pi,abs]).
 functions([sin,cos,tan,cot,sqrt,ln,abs]).
@@ -194,11 +195,15 @@ differentiate(Formula,Variable,Result,Rules,Operations):-
     diff(Formula,Variable,Result1,Rules,Operations),
     remove_zeros_ones(Result1,Result).
 
-differentiate(Formula,Variable):-
+differentiate(Formula,[Variable]):-
     diff(Formula,Variable,Result1,_,_),
     remove_zeros_ones(Result1,Result),
-    writeln(Result).
-
+    write('d'),write(Variable),write(': '),writeln(Result).
+differentiate(Formula,[Variable|T]):-
+    diff(Formula,Variable,Result1,_,_),
+    remove_zeros_ones(Result1,Result),
+    write('d'),write(Variable),write(': '),writeln(Result),
+    differentiate(Formula,T).
 
 % evaluate the derivative
 % VariablesList is a list of lists of the form [[x,1],[y,2]]
@@ -209,7 +214,7 @@ evaluate(Formula,VariablesList,Result):-
     replace_vars(SymbolicResult,VariablesList,ToEvaluate),
     Result is ToEvaluate.
 
-jacobian(_,_):- true.
+jacobian(Formula).
 hessian(_,_):- true.
 evaluate_nth(_):- true.
 
