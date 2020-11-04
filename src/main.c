@@ -27,20 +27,17 @@ void print_manual() {
 
 int main(int argc, char **argv) { 
 	int pid;
-	int status;
-	char command[100] = "differentiate("; 	
-
-	// if(argc > 1 && strcmp(argv[1],"-h") || strcmp(argv[1],"--help")) {
-	// 	printf("pre pre pre alpha release\n");
-	// 	printf("usage: ./symdiff <function> <variable>\n");
-	// 	printf("example: ./symdif 2*x x\n");
-	// 	exit(MANUAL_EXIT);
-	// }
+	int status, nbytes;
+	int fd[2];
+	char command[100] = "evaluate(";
+	char readbuffer[100];
 
 	if(argc <= 2) {
 		print_manual();
 		exit(MANUAL_EXIT);
 	}
+
+	pipe(fd);
 
 	strcat(command,argv[1]);
 	strcat(command,",");
@@ -53,11 +50,21 @@ int main(int argc, char **argv) {
         exit(FORK_ERROR_EXIT);
 	}
     if (pid == 0) {
+		close(fd[0]);
+		close(1);
+		dup(fd[1]);
 		execlp("swipl","swipl","-s","differentiate.pl","-g",command,"-t","halt",(char *)NULL);	
 	}
     else {
-		// printf("Waiting\n");
+		printf("Waiting\n");
+		close(fd[1]);
+		close(0);
+		dup(fd[0]);
 		wait(&status);
+		nbytes = read(fd[0], readbuffer, sizeof(readbuffer));
+		printf("Received string: %s", readbuffer);
 	} 
+
+	return 0;
  	
 }

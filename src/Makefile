@@ -5,11 +5,11 @@ CC=gcc
 
 # COMPILE=${CC} ${CFLAGS} ${CFLAGSPEDANTIC} ${COMMONFLAGS}
 
-COMPILE=${CC} ${CFLAGS}
-
+COMPILE=${CC} ${CFLAGS} -fpic
 
 symdiff: main.o symdiff.o
 	${COMPILE} -o symdiff main.o symdiff.o -lc
+	${COMPILE} -shared main.o symdiff.o -o libsymdiff.so
 
 main.o: main.c symdiff.h
 	${COMPILE} -c main.c
@@ -18,7 +18,7 @@ symdiff.o: symdiff.c symdiff.h
 	${COMPILE} -c symdiff.c
 
 clean:
-	rm symdiff symdiff.o main.o
+	rm symdiff symdiff.o main.o libsymdiff.so
 
 check:
 	@echo "running prolog tests"

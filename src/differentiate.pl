@@ -1,7 +1,7 @@
 % prolog module to implement differentiation
 % https://www.math.it/formulario/derivate.htm
 
-:- module(differentiate,[differentiate/2,differentiate/5,evaluate/3]).
+:- module(differentiate,[differentiate/2,differentiate/5,evaluate/2]).
 :- discontiguous differentiate:diff/5.
 
 reserved_words([sin,cos,tan,cot,sqrt,ln,e,pi,abs]).
@@ -204,15 +204,21 @@ differentiate(Formula,[Variable|T]):-
     remove_zeros_ones(Result1,Result),
     write('d'),write(Variable),write(': '),writeln(Result),
     differentiate(Formula,T).
+differentiate(Formula,Variable,Result):-
+    diff(Formula,Variable,Result1,_,_),
+    remove_zeros_ones(Result1,Result).
 
 % evaluate the derivative
-% VariablesList is a list of lists of the form [[x,1],[y,2]]
-evaluate(Formula,VariablesList,Result):-
+% VariablesList is a list of the form [[x,1],[y,2]]
+evaluate(Formula,VariablesList):-
     % TODO: check that all the variables are in the list
     % TODO: check that the list is well formed
+    % TODO: extract variables
+    % call multiple differentiate with maplist 
     differentiate(Formula,_,SymbolicResult),
     replace_vars(SymbolicResult,VariablesList,ToEvaluate),
-    Result is ToEvaluate.
+    Result is ToEvaluate,
+    writeln(Result).
 
 jacobian(Formula).
 hessian(_,_):- true.
