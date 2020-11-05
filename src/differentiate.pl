@@ -1,13 +1,36 @@
 % prolog module to implement differentiation
 % https://www.math.it/formulario/derivate.htm
 
-:- module(differentiate,[differentiate/2,differentiate/5,evaluate/2]).
+:- module(differentiate,[
+    differentiate/2,
+    differentiate/5,
+    evaluate/2,
+    evaluate/3,
+    jacobian/1,
+    jacobian/3]).
 :- discontiguous differentiate:diff/5.
 
 reserved_words([sin,cos,tan,cot,sqrt,ln,e,pi,abs]).
 functions([sin,cos,tan,cot,sqrt,ln,abs]).
 builtin_values([e,pi]).
+operators([+,-,*,/,^]).
 
+% remove everything that is not a variable
+remove_elements([],[]).
+remove_elements([H|T],[H1|T1]):-
+    functions(FN),
+    (   memberchk(H,FN) ; number(H) ), !,
+    remove_elements(T,[H1|T1]).
+remove_elements([e|T],[2.7|T1]):- !,
+    remove_elements(T,T1).
+remove_elements([pi|T],[3,141|T1]):- !,
+    remove_elements(T,T1).
+remove_elements([H|T],L):- 
+    operators(Op),
+    memberchk(H,Op), !,
+    remove_elements(T,L).
+remove_elements([H|T],[H|T1]):- !,
+    remove_elements(T,T1).
 
 % TODO: wrap all cases where the variable derivation is not the one 
 % in the function (0)
@@ -163,7 +186,7 @@ diff(A,X,Composite*DG,[reciprocal, TN1 | TN2],[d/d(X:A) -> Composite*DG, TF1 | T
     diff(FX,X,DF,TN1,TF1),
     diff(GX,X,DG,TN2,TF2),
     DF =..[DFF,_],
-    Composite =..[DFF,T2].
+    Composite =..[DFF,TF2].
 
 % check if the variable to be integrated is in the expression
 % if so, perform the operations, otherwise return 0
@@ -195,6 +218,7 @@ differentiate(Formula,Variable,Result,Rules,Operations):-
     diff(Formula,Variable,Result1,Rules,Operations),
     remove_zeros_ones(Result1,Result).
 
+% TODO: use maplist
 differentiate(Formula,[Variable]):-
     diff(Formula,Variable,Result1,_,_),
     remove_zeros_ones(Result1,Result),
@@ -208,19 +232,49 @@ differentiate(Formula,Variable,Result):-
     diff(Formula,Variable,Result1,_,_),
     remove_zeros_ones(Result1,Result).
 
+% from: https://stackoverflow.com/questions/19917369/prolog-using-2-univ-in-a-recursive-way
+list_2_compound(L, T) :-
+    var(T)
+    ->  L = [F|Fs], maplist(list_2_compound, Fs, Ts), T =.. [F|Ts]
+    ;   atomic(T)
+    ->  L = T
+    ;   L = [F|Fs], T =.. [F|Ts], maplist(list_2_compound, Fs, Ts), !.
+list_2_compound(T, T).
+
+% extract vars from list
+% ?- extract_vars(x+y^2+z,V).
+extract_vars(Equation,VarsList):-
+    list_2_compound(List,Equation),
+    flatten(List,LF),
+    remove_elements(LF,VarsList).
+
 % evaluate the derivative
 % VariablesList is a list of the form [[x,1],[y,2]]
 evaluate(Formula,VariablesList):-
+    evaluate(Formula,VariablesList,Result),
+    writeln(Result).
+evaluate(Formula,VariablesList,Result):-
     % TODO: check that all the variables are in the list
     % TODO: check that the list is well formed
     % TODO: extract variables
+    findall(V,member([V,_],VariablesList),LV),
+    length(LV,NV),
+    length(SymbolicResult,NV),
     % call multiple differentiate with maplist 
-    differentiate(Formula,_,SymbolicResult),
+    maplist(differentiate(Formula),LV,SymbolicResult),
     replace_vars(SymbolicResult,VariablesList,ToEvaluate),
-    Result is ToEvaluate,
-    writeln(Result).
+    Result is ToEvaluate.
 
-jacobian(Formula).
+my_write(Var,Der):-
+    format('d~w: ~w~n',[Var,Der]).
+
+jacobian(Formula):-
+    jacobian(Formula,LV,Result),
+    maplist(my_write,LV,Result).
+jacobian(Formula,LVars,Result):-
+    extract_vars(Formula,LVars),
+    maplist(differentiate(Formula),LVars,Result).
+
 hessian(_,_):- true.
 evaluate_nth(_):- true.
 
