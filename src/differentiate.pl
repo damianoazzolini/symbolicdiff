@@ -7,27 +7,23 @@
     evaluate/2,
     evaluate/3,
     jacobian/1,
-    jacobian/3]).
+    jacobian/3,
+    list_to_compound/2,
+    remove_elements/2]).
 :- discontiguous differentiate:diff/5.
 
 reserved_words([sin,cos,tan,cot,sqrt,ln,e,pi,abs]).
 functions([sin,cos,tan,cot,sqrt,ln,abs]).
 builtin_values([e,pi]).
-operators([+,-,*,/,^]).
+operators([+,-,*,/,^,(,),sqrt]).
 
 % remove everything that is not a variable
 remove_elements([],[]).
-remove_elements([H|T],[H1|T1]):-
+remove_elements([H|T],L):-
     functions(FN),
-    (   memberchk(H,FN) ; number(H) ), !,
-    remove_elements(T,[H1|T1]).
-remove_elements([e|T],[2.7|T1]):- !,
-    remove_elements(T,T1).
-remove_elements([pi|T],[3,141|T1]):- !,
-    remove_elements(T,T1).
-remove_elements([H|T],L):- 
     operators(Op),
-    memberchk(H,Op), !,
+    builtin_values(Val),
+    (   memberchk(H,FN) ; number(H) ; memberchk(H,Op) ; memberchk(H,Val) ), !,
     remove_elements(T,L).
 remove_elements([H|T],[H|T1]):- !,
     remove_elements(T,T1).
@@ -233,20 +229,21 @@ differentiate(Formula,Variable,Result):-
     remove_zeros_ones(Result1,Result).
 
 % from: https://stackoverflow.com/questions/19917369/prolog-using-2-univ-in-a-recursive-way
-list_2_compound(L, T) :-
+list_to_compound(L, T) :-
     var(T)
-    ->  L = [F|Fs], maplist(list_2_compound, Fs, Ts), T =.. [F|Ts]
+    ->  L = [F|Fs], maplist(list_to_compound, Fs, Ts), T =.. [F|Ts]
     ;   atomic(T)
     ->  L = T
-    ;   L = [F|Fs], T =.. [F|Ts], maplist(list_2_compound, Fs, Ts), !.
-list_2_compound(T, T).
+    ;   L = [F|Fs], T =.. [F|Ts], maplist(list_to_compound, Fs, Ts), !.
+list_to_compound(T, T).
 
 % extract vars from list
 % ?- extract_vars(x+y^2+z,V).
 extract_vars(Equation,VarsList):-
-    list_2_compound(List,Equation),
+    list_to_compound(List,Equation),
     flatten(List,LF),
-    remove_elements(LF,VarsList).
+    remove_elements(LF,VarsListD),
+    sort(VarsListD,VarsList).
 
 % evaluate the derivative
 % VariablesList is a list of the form [[x,1],[y,2]]

@@ -1,6 +1,6 @@
 :- ['../src/differentiate'].
 
-test:- test_differentiate, test_evaluate.
+test:- test_differentiate, test_evaluate, test_utility, !.
 
 test_differentiate:-
     wrap_test_differentiate(constant,1,x,0),
@@ -27,6 +27,30 @@ test_differentiate:-
     % composite function (last one)
 
 test_evaluate:- true.
+
+test_utility:-
+    wrap_test_list_to_compound(list_to_compound,[(+),[(*),[(^),x,2],[(^),3,3]],y], x^2*3^3+y),
+    wrap_test_list_to_compound(list_to_compound,[(+),[(+),[(+),[(*),[cos,[(^),x,2]],[(^),3,3]],y],pi],[(^),e,[cos,pi]]],cos(x^2)*3^3+y+pi+e^cos(pi)),
+    wrap_test_remove_elements(remove_elements_1,[(+),(*),(^),x,2,(^),3,3,y],[x,y]),
+    wrap_test_remove_elements(remove_elements_2, [(+),(+),(+),(*),cos,(^),x,2,(^),3,3,y,pi,(^),e,cos,pi],[x,y]).
+
+wrap_test_list_to_compound(TestName,In,ExpectedResult):-
+    ( list_to_compound(In,Res),
+        ( Res = ExpectedResult  ->
+            ansi_format([bold,fg(green)], 'Passed ~w~n',[TestName]);
+            ansi_format([bold,fg(red)], 'Failed ~w: ~w -> ~w~n', [TestName,Res,ExpectedResult])
+        ) ;
+        ansi_format([bold,fg(red)], 'Failed ~w: no unification~n', [TestName])
+    ).
+
+wrap_test_remove_elements(TestName,In,ExpectedResult):-
+    ( remove_elements(In,Res),
+        ( Res = ExpectedResult  ->
+            ansi_format([bold,fg(green)], 'Passed ~w~n',[TestName]);
+            ansi_format([bold,fg(red)], 'Failed ~w: ~w -> ~w~n', [TestName,Res,ExpectedResult])
+        ) ;
+        ansi_format([bold,fg(red)], 'Failed ~w: no unification~n', [TestName])
+    ).
 
 wrap_test_differentiate(TestName,Equation,Variable,ExpectedResult):-
     ( differentiate(Equation,Variable,Fx,_,_),
