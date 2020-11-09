@@ -8,6 +8,8 @@
     evaluate/3,
     jacobian/1,
     jacobian/3,
+    hessian/1,
+    hessian/3,
     list_to_compound/2,
     remove_elements/2]).
 :- discontiguous differentiate:diff/5.
@@ -69,7 +71,7 @@ diff(F^N,Var,0,[power_rule],[d/d(Var:F^N) -> 0]):-
     atom(F),
     number(N),
     Var \= F.
-diff(sqrt2(X),X,1/(2*sqrt(X)),[power_rule],[d/d(X:sqrt2(X)) -> 1/(2*sqrt(X))]):-
+diff(sqrt(X),X,1/(2*sqrt(X)),[power_rule],[d/d(X:sqrt(X)) -> 1/(2*sqrt(X))]):-
     atom(X).
 
 % absolute value
@@ -272,6 +274,12 @@ jacobian(Formula,LVars,Result):-
     extract_vars(Formula,LVars),
     maplist(differentiate(Formula),LVars,Result).
 
-hessian(_,_):- true.
+hessian(_Formula):- true.
+    % hessian(Formula,LV,Result),
+    % maplist(my_write,LV,Result).
+hessian(_Formula,_LVars,_Result):- true.
+    % extract_vars(Formula,LVars),
+    % maplist(differentiate(Formula),LVars,Result1).
+
 evaluate_nth(_):- true.
 

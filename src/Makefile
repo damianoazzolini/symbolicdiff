@@ -7,19 +7,22 @@ CC=gcc
 
 COMPILE=${CC} ${CFLAGS} -fpic
 
-symdiff: main.o symdiff.o
-	${COMPILE} -o symdiff main.o symdiff.o -lc
+symdiff: main.o symdiff.o parser.o
+	${COMPILE} -o symdiff main.o symdiff.o parser.o -lc
 	${COMPILE} -shared main.o symdiff.o -o libsymdiff.so
 
-main.o: main.c symdiff.h
+main.o: main.c symdiff.h parser.h
 	${COMPILE} -c main.c
 
 symdiff.o: symdiff.c symdiff.h
 	${COMPILE} -c symdiff.c
 
+parser.o: parser.c parser.h
+	${COMPILE} -c parser.c
+
 clean:
-	rm symdiff symdiff.o main.o libsymdiff.so
+	rm symdiff *.o *.so
 
 check:
 	@echo "running prolog tests"
-	swipl -s test/test.pl -g test -t halt
+	swipl -s ../test/test.pl -g test -t halt

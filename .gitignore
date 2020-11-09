@@ -1,6 +1,5 @@
 a.out
 symdiff
 temp.tmp
-main.o
-symdiff.o
-libsymdiff.so
+*.o
+*.so
