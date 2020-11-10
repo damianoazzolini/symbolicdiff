@@ -3,6 +3,7 @@
 
 :- module(differentiate,[
     differentiate/2,
+    differentiate/3,
     differentiate/5,
     evaluate/2,
     evaluate/3,
@@ -10,6 +11,8 @@
     jacobian/3,
     hessian/1,
     hessian/3,
+    gradient/1,
+    gradient/3,
     list_to_compound/2,
     remove_elements/2]).
 :- discontiguous differentiate:diff/5.
@@ -217,12 +220,13 @@ differentiate(Formula,Variable,Result,Rules,Operations):-
     remove_zeros_ones(Result1,Result).
 
 % TODO: use maplist
-differentiate(Formula,[Variable]):-
-    diff(Formula,Variable,Result1,_,_),
+differentiate(Formula,V):-
+    (   V = [Variable] ; V = Variable),
+    diff(Formula,Variable,Result1,_,_), !,
     remove_zeros_ones(Result1,Result),
     write('d'),write(Variable),write(': '),writeln(Result).
 differentiate(Formula,[Variable|T]):-
-    diff(Formula,Variable,Result1,_,_),
+    diff(Formula,Variable,Result1,_,_), !,
     remove_zeros_ones(Result1,Result),
     write('d'),write(Variable),write(': '),writeln(Result),
     differentiate(Formula,T).
@@ -273,6 +277,14 @@ jacobian(Formula):-
 jacobian(Formula,LVars,Result):-
     extract_vars(Formula,LVars),
     maplist(differentiate(Formula),LVars,Result).
+
+gradient(Formula):- 
+    gradient(Formula,LV,Result), !,
+    maplist(my_write,LV,Result).
+gradient(Formula,LVars,Result):- 
+    extract_vars(Formula,LVars),
+    maplist(differentiate(Formula),LVars,Result), !.
+
 
 hessian(_Formula):- true.
     % hessian(Formula,LV,Result),
