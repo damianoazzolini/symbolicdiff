@@ -13,6 +13,7 @@
     hessian/3,
     gradient/1,
     gradient/3,
+    evaluate_nth/1,
     list_to_compound/2,
     remove_elements/2]).
 :- discontiguous differentiate:diff/5.

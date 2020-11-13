@@ -1,5 +1,6 @@
 a.out
 symdiff
 temp.tmp
+.vscode
 *.o
 *.so

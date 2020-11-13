@@ -15,7 +15,7 @@ static struct argp_option options[] = {
 	{"derivate",	'd', "VARIABLE(s)",0,	"Compute derivative w.r.t. VARIABLE(s)", 0 },
 	{"print-steps",	'p', 0, 		0,	"Print derivation steps", 1 },
 	{"tex",			't', 0, 		0,	"Print latex output", 2 },
-	{"evaluate",	'e', 0, 		0,	"Evaluate the derivative", 1 },
+	{"evaluate",	'e', "POINT(s)",0,	"Evaluate the derivative", 1 },
 	{"jacobian",	'j', 0, 		0,	"Compute Jacobian",2 },
 	{"hessian",		'H', 0, 		0,	"Compute Hessian", 2 },
 	{"interactive",	'i', 0, 		0,	"Interactive mode", 3 },
@@ -49,6 +49,7 @@ error_t parse_opt(int key, char *arg, struct argp_state *state) {
 		break;
 	case 'e':
 		arguments->evaluate = 1;
+		arguments->evaluate_points = arg;
 		break;
 	case 'j':
 		arguments->jacobian = 1;
@@ -70,7 +71,7 @@ error_t parse_opt(int key, char *arg, struct argp_state *state) {
 		break;
 
 	case ARGP_KEY_END:
-		if (state->arg_num != 1) {
+		if (state->arg_num != 1 && arguments->interactive == 0) {
 			/* Not enough arguments-> */
 			argp_usage(state);
         }
@@ -102,6 +103,7 @@ void init_argument(struct arguments *arguments) {
 	arguments->interactive = 0;
 	arguments->output_file = NULL;
 	arguments->variables = NULL;
+	arguments->evaluate_points = NULL;
 }
 
 void parse_arguments(int argc, char **argv, struct arguments *arguments) {
