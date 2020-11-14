@@ -7,6 +7,8 @@
     differentiate/5,
     evaluate/2,
     evaluate/3,
+    evaluate_expr/2,
+    evaluate_expr/3,
     jacobian/1,
     jacobian/3,
     hessian/1,
@@ -260,13 +262,21 @@ evaluate(Formula,VariablesList):-
 evaluate(Formula,VariablesList,Result):-
     % TODO: check that all the variables are in the list
     % TODO: check that the list is well formed
-    % TODO: extract variables
     findall(V,member([V,_],VariablesList),LV),
     length(LV,NV),
     length(SymbolicResult,NV),
     % call multiple differentiate with maplist 
     maplist(differentiate(Formula),LV,SymbolicResult),
     replace_vars(SymbolicResult,VariablesList,ToEvaluate),
+    Result is ToEvaluate.
+
+evaluate_expr(Formula,VariablesList):-
+    evaluate_expr(Formula,VariablesList,Result),
+    writeln(Result).
+evaluate_expr(Formula,VariablesList,Result):-
+    % TODO: check that all the variables are in the list
+    % TODO: check that the list is well formed
+    replace_vars(Formula,VariablesList,ToEvaluate),
     Result is ToEvaluate.
 
 my_write(Var,Der):-

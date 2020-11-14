@@ -25,13 +25,24 @@ test_differentiate:-
     % reciprocal function
     % composite function (last one)
 
-test_evaluate:- true.
+test_evaluate:- 
+    wrap_test_evaluate_expr(one_var_a,3*x,[[x,1]],3),
+    wrap_test_evaluate_expr(two_vars,3*x*y,[[x,2],[y,2]],12).
 
 test_utility:-
     wrap_test_list_to_compound(list_to_compound,[(+),[(*),[(^),x,2],[(^),3,3]],y], x^2*3^3+y),
     wrap_test_list_to_compound(list_to_compound,[(+),[(+),[(+),[(*),[cos,[(^),x,2]],[(^),3,3]],y],pi],[(^),e,[cos,pi]]],cos(x^2)*3^3+y+pi+e^cos(pi)),
     wrap_test_remove_elements(remove_elements_1,[(+),(*),(^),x,2,(^),3,3,y],[x,y]),
     wrap_test_remove_elements(remove_elements_2, [(+),(+),(+),(*),cos,(^),x,2,(^),3,3,y,pi,(^),e,cos,pi],[x,y]).
+
+wrap_test_evaluate_expr(TestName,Formula,Vars,ExpectedResult):-
+    ( evaluate_expr(Formula,Vars,Res),
+        ( Res = ExpectedResult  ->
+            ansi_format([bold,fg(green)], 'Passed ~w~n',[TestName]);
+            ansi_format([bold,fg(red)], 'Failed ~w: ~w -> ~w~n', [TestName,Res,ExpectedResult])
+        ) ;
+        ansi_format([bold,fg(red)], 'Failed ~w: no unification~n', [TestName])
+    ).
 
 wrap_test_list_to_compound(TestName,In,ExpectedResult):-
     ( list_to_compound(In,Res),
