@@ -42,7 +42,7 @@ char *exec_wrapper(char *command) {
 		while(wait(&status) > 0);
         readbuffer = malloc(BUFLEN);
 		nbytes = read(fd[0], readbuffer, BUFLEN - 1);
-        printf("hhee, %d, %s\n",nbytes,readbuffer);
+        readbuffer[nbytes] = '\0';
         if(nbytes > 0) {
             return readbuffer;
         }
@@ -65,29 +65,65 @@ char* symbolic_differentiate(char *function, char *variable) {
     return exec_wrapper(command); 
 }
 
-char* symbolic_differentiate_steps(char *function, char *variable) {
+char* symbolic_differentiate_steps(__attribute__ ((unused)) char *function, __attribute__ ((unused)) char *variable) {
     return NULL;
 }
 
 char* evaluate(char *function, char *variable) {
+    char command[100] = "evaluate(";
+
+    strcat(command,function);
+	strcat(command,",");
+	strcat(command,variable);
+	strcat(command,").");
+
+    return exec_wrapper(command);
+}
+
+char* evaluate_steps(__attribute__ ((unused)) char *function, __attribute__ ((unused)) char *variable) {
     return NULL;
 }
-char* evaluate_steps(char *function, char *variable) {
+
+
+char* evaluate_expr(char *function, char *variable) {
+    char command[100] = "evaluate_expr(";
+
+    strcat(command,function);
+	strcat(command,",");
+	strcat(command,variable);
+	strcat(command,").");
+
+    return exec_wrapper(command);
+}
+
+char* evaluate_expr_steps(__attribute__ ((unused)) char *function, __attribute__ ((unused)) char *variable) {
+    return NULL;
+}
+
+char* jacobian(__attribute__ ((unused)) char *function) {
+    return NULL;
+}
+char* jacobian_steps(__attribute__ ((unused)) char *function) {
     return NULL;
 }
 
 
-char* jacobian(char *function) {
-    return '_';
+char* hessian(__attribute__ ((unused)) char *function) {
+    return NULL;
 }
-char* jacobian_steps(char *function) {
-    return '_';
+char* hessian_steps(__attribute__ ((unused)) char *function) {
+    return NULL;
 }
 
+char* gradient(char *function) {
+    char command[100] = "gradient(";
 
-char* hessian(char *function) {
-    return '_';
+    strcat(command,function);
+	strcat(command,").");
+
+    return exec_wrapper(command);
 }
-char* hessian_steps(char *function) {
-    return '_';
+
+char* gradient_steps(__attribute__ ((unused)) char *function) {
+    return NULL;
 }

@@ -43,8 +43,41 @@ nexample: symdiff 3*x^2 + y -d [x,y]
 
 Report bugs to <github_issue>.
 ```
+## Examples
+Symbolic differentiate: 
+```
+./symdiff 3*x+4*y+5*z -d x
+x: 3*1+4*0+5*0
+```
 
-## Output values
+```
+./symdiff 3*x+4*y+5*z -d [x,y,z]
+dx: 3*1+4*0+5*0
+dy: 3*0+4*1+5*0
+dz: 3*0+4*0+5*1
+```
+
+Gradient:
+```
+./symdiff 3*x+4*y+5*z -g
+dx: 3*1+4*0+5*0
+dy: 3*0+4*1+5*0
+dz: 3*0+4*0+5*1
+```
+
+Evaluate the function:
+```
+./symdiff 3*x+4*y+5*z -e [[x,1],[y,2],[z,3]]
+26
+```
+
+Evaluate the derivative(s):
+```
+./symdiff 3*x+4*y+5*z -d [x,y,z] -e [[x,1],[y,2],[z,3]]
+[3,4,5]
+```
+
+## Return values
 See `src/errors.h`:
 - `FORK_ERROR_EXIT -2`
 - `PIPE_ERROR_EXIT -3`

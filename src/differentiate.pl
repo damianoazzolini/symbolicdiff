@@ -201,7 +201,7 @@ quick_check(Expression,DerivVar,Res):-
 
 % simplify expression containing 0*_ or 1*_
 % 2*1*y+0*(2*x) -> 2*y
-remove_zeros_ones(R,R).
+remove_zeros_ones(In,In).
 
 % replace variables
 replace(TermFind, TermReplace, Compound, CompOut) :-
@@ -224,7 +224,7 @@ differentiate(Formula,Variable,Result,Rules,Operations):-
 
 % TODO: use maplist
 differentiate(Formula,V):-
-    (   V = [Variable] ; V = Variable),
+    ( V = [Variable] ; atom(V) ),
     diff(Formula,Variable,Result1,_,_), !,
     remove_zeros_ones(Result1,Result),
     write('d'),write(Variable),write(': '),writeln(Result).
@@ -265,10 +265,9 @@ evaluate(Formula,VariablesList,Result):-
     findall(V,member([V,_],VariablesList),LV),
     length(LV,NV),
     length(SymbolicResult,NV),
-    % call multiple differentiate with maplist 
     maplist(differentiate(Formula),LV,SymbolicResult),
     replace_vars(SymbolicResult,VariablesList,ToEvaluate),
-    Result is ToEvaluate.
+    maplist(is,Result,ToEvaluate).
 
 evaluate_expr(Formula,VariablesList):-
     evaluate_expr(Formula,VariablesList,Result),

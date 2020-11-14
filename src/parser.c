@@ -19,6 +19,7 @@ static struct argp_option options[] = {
 	{"jacobian",	'j', 0, 		0,	"Compute Jacobian",2 },
 	{"hessian",		'H', 0, 		0,	"Compute Hessian", 2 },
 	{"interactive",	'i', 0, 		0,	"Interactive mode", 3 },
+	{"gradient",	'g', 0, 		0,	"Gradient", 3 },
 	{ 0 }
 };
 
@@ -60,6 +61,9 @@ error_t parse_opt(int key, char *arg, struct argp_state *state) {
 	case 'i':
 		arguments->interactive = 1;
 		break;
+	case 'g':
+		arguments->gradient = 1;
+		break;
 		
 	case ARGP_KEY_ARG:
 		if (state->arg_num > 1)
@@ -75,7 +79,7 @@ error_t parse_opt(int key, char *arg, struct argp_state *state) {
 			/* Not enough arguments-> */
 			argp_usage(state);
         }
-		if(state->arg_num == 1 && arguments->variables == NULL && (arguments->jacobian == 0 || arguments->hessian == 0)) {
+		if(state->arg_num == 1 && arguments->variables == NULL && (arguments->jacobian != 0 && arguments->hessian != 0 && arguments->evaluate != 0 && arguments->gradient != 0 )) {
             argp_usage(state);
         }
         // if(arguments->derivate == 1 && arguments->variables == NULL) {
@@ -101,6 +105,7 @@ void init_argument(struct arguments *arguments) {
 	arguments->hessian = 0;
 	arguments->jacobian = 0;
 	arguments->interactive = 0;
+	arguments->gradient = 0;
 	arguments->output_file = NULL;
 	arguments->variables = NULL;
 	arguments->evaluate_points = NULL;

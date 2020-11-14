@@ -1,9 +1,11 @@
 #ifndef _ERROR_H_
 #define _ERROR_H_
 
+#define INCONSISTENCY_ERROR_EXIT -1
 #define FORK_ERROR_EXIT -2
 #define PIPE_ERROR_EXIT -3
 #define EXECLP_ERROR_EXIT -4
 #define FOPEN_ERROR_EXIT -5
+#define EXEC_NULL_ERROR_EXIT -6
 
 #endif
