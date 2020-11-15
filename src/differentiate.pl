@@ -5,6 +5,7 @@
     differentiate/2,
     differentiate/3,
     differentiate/5,
+    differentiate_steps/2,
     evaluate/2,
     evaluate/3,
     evaluate_expr/2,
@@ -43,7 +44,7 @@ remove_elements([H|T],[H|T1]):- !,
 diff(X,Y,0,[constant],[d/d(Y:X) -> 0]):- number(X).
 
 % d/dx x -> 1 or d/dx y -> 0
-diff(X,Y,Res,[single],[d/d(Y:X) -> Res]):-
+diff(X,Y,Res,[one_variable],[d/d(Y:X) -> Res]):-
     atom(X),
     ( X \== Y -> Res = 0; Res = 1).
 
@@ -224,10 +225,10 @@ differentiate(Formula,Variable,Result,Rules,Operations):-
 
 % TODO: use maplist
 differentiate(Formula,V):-
-    ( V = [Variable] ; atom(V) ),
-    diff(Formula,Variable,Result1,_,_), !,
+    ( V = [Var] ; atom(V), Var = V ),
+    diff(Formula,Var,Result1,_,_), !,
     remove_zeros_ones(Result1,Result),
-    write('d'),write(Variable),write(': '),writeln(Result).
+    write('d'),write(Var),write(': '),writeln(Result).
 differentiate(Formula,[Variable|T]):-
     diff(Formula,Variable,Result1,_,_), !,
     remove_zeros_ones(Result1,Result),
@@ -236,6 +237,22 @@ differentiate(Formula,[Variable|T]):-
 differentiate(Formula,Variable,Result):-
     diff(Formula,Variable,Result1,_,_),
     remove_zeros_ones(Result1,Result).
+differentiate_steps(Formula,V):-
+    ( V = [Var] ; atom(V),Var = V ),
+    diff(Formula,Var,Result1,Rules,Operations), !,
+    remove_zeros_ones(Result1,Result),
+    write('d'),write(Var),write(': '),writeln(Result),
+    flatten(Rules,RF),
+    flatten(Operations,OF),
+    writeln(RF),writeln(OF).
+differentiate_steps(Formula,[Variable|T]):-
+    diff(Formula,Variable,Result1,Rules,Operations), !,
+    remove_zeros_ones(Result1,Result),
+    write('d'),write(Variable),write(': '),writeln(Result),
+    flatten(Rules,RF),
+    flatten(Operations,OF),
+    writeln(RF),writeln(OF),
+    differentiate_steps(Formula,T).
 
 % from: https://stackoverflow.com/questions/19917369/prolog-using-2-univ-in-a-recursive-way
 list_to_compound(L, T) :-

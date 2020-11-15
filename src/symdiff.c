@@ -8,7 +8,7 @@
 #include <sys/wait.h>
 #include <string.h>
 
-#define BUFLEN 500
+#define BUFLEN 1000
 
 char *exec_wrapper(char *command) {
     char *readbuffer;
@@ -42,6 +42,7 @@ char *exec_wrapper(char *command) {
 		while(wait(&status) > 0);
         readbuffer = malloc(BUFLEN);
 		nbytes = read(fd[0], readbuffer, BUFLEN - 1);
+        // TODO: handle buflen of longer sizes
         readbuffer[nbytes] = '\0';
         if(nbytes > 0) {
             return readbuffer;
@@ -65,8 +66,15 @@ char* symbolic_differentiate(char *function, char *variable) {
     return exec_wrapper(command); 
 }
 
-char* symbolic_differentiate_steps(__attribute__ ((unused)) char *function, __attribute__ ((unused)) char *variable) {
-    return NULL;
+char* symbolic_differentiate_steps(char *function, char *variable) {
+    char command[100] = "differentiate_steps(";
+
+    strcat(command,function);
+	strcat(command,",");
+	strcat(command,variable);
+	strcat(command,").");
+
+    return exec_wrapper(command); 
 }
 
 char* evaluate(char *function, char *variable) {

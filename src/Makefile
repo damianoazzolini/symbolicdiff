@@ -9,7 +9,7 @@ COMPILE=${CC} ${CFLAGS} -fpic
 
 symdiff: main.o symdiff.o parser.o
 	${COMPILE} -o symdiff main.o symdiff.o parser.o -lc
-	${COMPILE} -shared main.o symdiff.o -o libsymdiff.so
+	${COMPILE} -shared main.o symdiff.o parser.o -o libsymdiff.so
 
 main.o: main.c symdiff.h parser.h errors.h
 	${COMPILE} -c main.c

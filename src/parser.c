@@ -16,10 +16,10 @@ static struct argp_option options[] = {
 	{"print-steps",	'p', 0, 		0,	"Print derivation steps", 1 },
 	{"tex",			't', 0, 		0,	"Print latex output", 2 },
 	{"evaluate",	'e', "POINT(s)",0,	"Evaluate the derivative", 1 },
-	{"jacobian",	'j', 0, 		0,	"Compute Jacobian",2 },
-	{"hessian",		'H', 0, 		0,	"Compute Hessian", 2 },
+	{"jacobian",	'j', 0, 		0,	"Compute Jacobian matrix",2 },
+	{"hessian",		'H', 0, 		0,	"Compute Hessian matrix", 2 },
 	{"interactive",	'i', 0, 		0,	"Interactive mode", 3 },
-	{"gradient",	'g', 0, 		0,	"Gradient", 3 },
+	{"gradient",	'g', 0, 		0,	"Compute gradient", 2 },
 	{ 0 }
 };
 

@@ -5,5 +5,5 @@
 // gcc test_c_api.c -L../src/ -lsymdiff -Wl,-rpath,../src/
 
 int main() {
-    printf("%lf\n",evaluate(NULL,'0'));
+    printf("%s\n",evaluate_expr("3*x+4*y+5*z","[[x,1],[y,2],[z,3]]"));
 }
