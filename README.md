@@ -4,20 +4,26 @@ The front end is built in C while the actual derivation is performed in Prolog.
 
 ## Requirements
 SWI-Prolog is needed. Installation manual: https://www.swi-prolog.org/build/unix.html
-Currently, SWI prolog is called through a system call (execlp). In the future, it would be nice to use its C API.
-    
+Currently, SWI prolog is called through a system call (`execlp`). In the future, it would be nice to use its C API.
+
+## Building
+```
+cd src
+make
+```
+ 
 ## Function/predicates available
 Without steps:
 - `differentiate(Formula,Variable(s))`
 - `gradient(Formula)`
-- `jacobian(Formula)`
-- `hessian(Formula)`
+- `jacobian(Formula)` (still not implemented)
+- `hessian(Formula)` (still not implemented)
 
 With steps:
 - `differentiate_steps(Formula,Variable(s))`
 - `gradient_steps(Formula)`
-- `jacobian_steps(Formula)`
-- `hessian_steps(Formula)`
+- `jacobian_steps(Formula)` (still not implemented)
+- `hessian_steps(Formula)` (still not implemented)
 
 ## Command Line Options
 ```
@@ -43,6 +49,7 @@ nexample: symdiff 3*x^2 + y -d [x,y]
 
 Report bugs to <github_issue>.
 ```
+
 ## Examples
 - Symbolic differentiate: 
 ```
@@ -139,7 +146,7 @@ Then run it with `./a.out`.
 ```
 
 ## Future Steps
-- Dynamic memory allocation, especially in writing from pipe
+- Dynamic memory allocation, especially in reading from pipe
 - Read functions from file
 - Interface (GUI)
 - Print latex format
