@@ -16,6 +16,7 @@
     hessian/3,
     gradient/1,
     gradient/3,
+    gradient_steps/1,
     evaluate_nth/1,
     list_to_compound/2,
     remove_elements/2]).
@@ -188,10 +189,12 @@ diff(A,X,Composite*DG,[reciprocal, TN1 | TN2],[d/d(X:A) -> Composite*DG, TF1 | T
     A =..[FX|GX],
     functions(LF),
     member(FX,LF),
-    diff(FX,X,DF,TN1,TF1),
-    diff(GX,X,DG,TN2,TF2),
+    FuncFX =..[FX,X], 
+    diff(FuncFX,X,DF,TN1,TF1),
+    GX = [FuncGX],
+    diff(FuncGX,X,DG,TN2,TF2),
     DF =..[DFF,_],
-    Composite =..[DFF,TF2].
+    Composite =..[DFF,FuncGX].
 
 % check if the variable to be integrated is in the expression
 % if so, perform the operations, otherwise return 0
@@ -311,6 +314,9 @@ gradient(Formula):-
 gradient(Formula,LVars,Result):- 
     extract_vars(Formula,LVars),
     maplist(differentiate(Formula),LVars,Result), !.
+gradient_steps(Formula):-
+    extract_vars(Formula,LVars),
+    maplist(differentiate_steps(Formula),LVars), !.
 
 
 hessian(_Formula):- true.

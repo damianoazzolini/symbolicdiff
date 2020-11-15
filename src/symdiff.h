@@ -10,4 +10,3 @@ char* symbolic_differentiate_steps(char *function, char *variable);
 char* jacobian_steps(char *function);
 char* hessian_steps(char *function);
 char* gradient_steps(char *function);
-char* evaluate_expr_steps(char *function, char *variable);

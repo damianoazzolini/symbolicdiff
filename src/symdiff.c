@@ -88,11 +88,6 @@ char* evaluate(char *function, char *variable) {
     return exec_wrapper(command);
 }
 
-char* evaluate_steps(__attribute__ ((unused)) char *function, __attribute__ ((unused)) char *variable) {
-    return NULL;
-}
-
-
 char* evaluate_expr(char *function, char *variable) {
     char command[100] = "evaluate_expr(";
 
@@ -104,17 +99,12 @@ char* evaluate_expr(char *function, char *variable) {
     return exec_wrapper(command);
 }
 
-char* evaluate_expr_steps(__attribute__ ((unused)) char *function, __attribute__ ((unused)) char *variable) {
-    return NULL;
-}
-
 char* jacobian(__attribute__ ((unused)) char *function) {
     return NULL;
 }
 char* jacobian_steps(__attribute__ ((unused)) char *function) {
     return NULL;
 }
-
 
 char* hessian(__attribute__ ((unused)) char *function) {
     return NULL;
@@ -132,6 +122,11 @@ char* gradient(char *function) {
     return exec_wrapper(command);
 }
 
-char* gradient_steps(__attribute__ ((unused)) char *function) {
-    return NULL;
+char* gradient_steps(char *function) {
+    char command[100] = "gradient_steps(";
+
+    strcat(command,function);
+	strcat(command,").");
+
+    return exec_wrapper(command);
 }

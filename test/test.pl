@@ -12,7 +12,7 @@ test_differentiate:-
     wrap_test_differentiate(absolute_1,abs(x),x,abs(x)/x),
     wrap_test_differentiate(absolute_2,abs(x),y,0),
     wrap_test_differentiate(absolute_3,abs(sin(x)),x,sin(x)*cos(x)/abs(sin(x))),
-    wrap_test_differentiate(absolute_4,abs(sin(x^2)),x,cos(x^2)*2*x*sin(x^2)/abs(sin(x^2))),
+    wrap_test_differentiate(absolute_4,abs(sin(x^2)),x,sin(x^2)*(cos(x^2)*(2*x^1))/abs(sin(x^2))),
     wrap_test_differentiate(logarithm,ln(x),x,1/x),
     wrap_test_differentiate(logarithm_abs,ln(abs(x)),x,1/x),
     wrap_test_differentiate(tan,tan(x),x,1+tan(x)^2),
@@ -21,9 +21,9 @@ test_differentiate:-
     wrap_test_differentiate(exponential_e,e^x,x,e^x),
     wrap_test_differentiate(composite_exp_num,3^sin(x),x,(3^sin(x))*ln(3)*cos(x)),
     wrap_test_differentiate(composite_exp_e,e^sin(x),x,(e^sin(x))*cos(x)),
-    wrap_test_differentiate(composite_sin_3,sin(x)^3,x,3*(sin(x)^2)*cos(x)).
+    wrap_test_differentiate(composite_sin_3,sin(x)^3,x,3*(sin(x)^2)*cos(x)),
+    wrap_test_differentiate(reciprocal,1/sin(x),x,(0*sin(x)-cos(x)*1)/sin(x)^2).
     % reciprocal function
-    % composite function (last one)
 
 test_evaluate:- 
     wrap_test_evaluate_expr(one_var_a,3*x,[[x,1]],3),
