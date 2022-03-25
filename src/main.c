@@ -30,6 +30,7 @@ void interactive_loop() {
 
 int dispatcher(struct arguments arguments) {
 	char *result;
+	double res;
 	FILE *fp;
 
 	if(arguments.output_file != NULL) {
@@ -50,13 +51,14 @@ int dispatcher(struct arguments arguments) {
 
 	}
 
+	// FIX ALL THE RETURN VALUES
 	// if evaluate == 1 && derivate == 0 -> evaluate the current formula (evaluate_expr)
 	// if evaluate == 1 && derivate == 1 -> evaluate the derivative
 	if(arguments.evaluate == 1 && arguments.derivate == 1) {
 		result = evaluate(arguments.args[0],arguments.evaluate_points);	
 	}
 	else if(arguments.evaluate == 1 && arguments.derivate == 0) {
-		result = evaluate_expr(arguments.args[0],arguments.evaluate_points);
+		res = evaluate_expr(arguments.args[0],arguments.evaluate_points);
 	}
 	else if(arguments.derivate == 1) {
 		if(arguments.print_steps == 1) {

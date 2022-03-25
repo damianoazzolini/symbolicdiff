@@ -25,7 +25,7 @@
 reserved_words([sin,cos,tan,cot,sqrt,ln,e,pi,abs]).
 functions([sin,cos,tan,cot,sqrt,ln,abs]).
 builtin_values([e,pi]).
-operators([+,-,*,/,^,(,),sqrt]).
+operators([+,-,*,/,^,sqrt]).
 
 % remove everything that is not a variable
 remove_elements([],[]).
@@ -56,6 +56,9 @@ diff(K * F, Var, K * (DF), [constant*function | TN], [d/d(Var : K*F) -> K*(DF) |
 
 % sum rule: (f + g)' = f' + g'
 diff(F + G, Var, DF + DG, [sum_rule, TN1|TN2], [d/d(Var : F + G) -> DF + DG, TF1|TF2]) :-
+	diff(F, Var, DF,TN1,TF1),
+	diff(G, Var, DG,TN2,TF2).
+diff(F - G, Var, DF - DG, [sum_rule, TN1|TN2], [d/d(Var : F - G) -> DF - DG, TF1|TF2]) :-
 	diff(F, Var, DF,TN1,TF1),
 	diff(G, Var, DG,TN2,TF2).
 
@@ -295,7 +298,16 @@ evaluate_expr(Formula,VariablesList):-
 evaluate_expr(Formula,VariablesList,Result):-
     % TODO: check that all the variables are in the list
     % TODO: check that the list is well formed
-    replace_vars(Formula,VariablesList,ToEvaluate),
+    ( string(Formula) -> 
+        term_string(T_Formula, Formula) ; 
+        T_Formula = Formula
+    ),
+    ( string(VariablesList) ->
+        term_string(VL, VariablesList) ; 
+        VL = VariablesList
+    ),
+    replace_vars(T_Formula,VL,ToEvaluate),
+    % writeln(ToEvaluate),
     Result is ToEvaluate.
 
 my_write(Var,Der):-

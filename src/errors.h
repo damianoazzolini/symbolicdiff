@@ -7,5 +7,6 @@
 #define EXECLP_ERROR_EXIT -4
 #define FOPEN_ERROR_EXIT -5
 #define EXEC_NULL_ERROR_EXIT -6
+#define QUERY_FAILURE_EXIT -7
 
 #endif

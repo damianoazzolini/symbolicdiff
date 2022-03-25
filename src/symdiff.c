@@ -7,62 +7,74 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <SWI-Prolog.h>
+#include <assert.h>
 
 #define BUFLEN 1000
 
-char *exec_wrapper(char *command) {
-    char *readbuffer;
-    int pid;
-    int status, nbytes;
-    int fd[2];
+// this always returns a string, the result is parsed in
+// the caller predicate (whether it needs a double or string)
+char *exec_wrapper(void *command) { }
 
-    if(pipe(fd) < 0) {
-        exit(PIPE_ERROR_EXIT);
+double exec_wrapper_(char *predicate, int arity, char *function, char *variables) {
+    int ac = 0;
+    char **av = (char **)malloc(sizeof(char *) * (20));
+    char av0[10] = "./";
+    char av1[10] = "-q";         // quiet
+    char av2[15] = "--nosignals"; // signal handling
+    av[ac++] = av0;
+    av[ac++] = av1;
+    av[ac++] = av2;
+
+    if (!PL_is_initialised(NULL, NULL)) {
+        if (!PL_initialise(ac, av)) {
+            printf("error\n");
+        }
     }
 
-    pid = fork();
-    if (pid < 0) {
-        exit(FORK_ERROR_EXIT);
-	}
-    if (pid == 0) {
-		close(fd[0]);
-		close(STDOUT_FILENO);
-		close(STDERR_FILENO);
-		dup(fd[1]);
-		close(fd[1]);
-		execlp("swipl","swipl","-s","differentiate.pl","-g",command,"-t","halt",(char *)NULL);
-        exit(EXECLP_ERROR_EXIT);
+    predicate_t p_consult = PL_predicate("consult", 1, "database");
+    term_t t = PL_new_term_ref();
+    PL_put_string_chars(t, "/mnt/c/Users/damia/Desktop/Dottorato/TestVari/symbolicDiff/src/differentiate.pl");
+    PL_call_predicate(NULL, 0, p_consult, t);
+    predicate_t p_query = PL_predicate(predicate, arity, "database");
+    term_t tq = PL_new_term_refs(3);
+
+    assert(PL_put_string_chars(tq, function) && "PL_put_string_chars function failure");
+    assert(PL_put_string_chars(tq + 1, variables) && "PL_put_string_chars variables failure");
+    assert(PL_put_variable(tq+2) && "PL_put_variable failure");
+
+    // PL_call_predicate(NULL,0,p_query,t);
+    qid_t query = PL_open_query(NULL, PL_Q_NORMAL, p_query, tq);
+    
+    int result = PL_next_solution(query);
+    // printf("query: %d result %d\n",query,result);
+    double value_computed;
+    if(result){
+        PL_get_float(tq+2, &value_computed);
+        // printf("Found solution %f.\n", value_computed);
     }
     else {
-		close(fd[1]);
-        close(STDIN_FILENO);
-        dup(fd[0]);
-		// dup2(fd[0],0);
-		// close(0);
-		while(wait(&status) > 0);
-        readbuffer = malloc(BUFLEN);
-		nbytes = read(fd[0], readbuffer, BUFLEN - 1);
-        // TODO: handle buflen of longer sizes
-        readbuffer[nbytes] = '\0';
-        if(nbytes > 0) {
-            return readbuffer;
-        }
-		else {
-            return NULL;
-        }
-	}
+        return QUERY_FAILURE_EXIT;
+    }
+    PL_close_query(query);
 
-    return NULL; 
+    if (PL_is_initialised(NULL, NULL)) {
+        PL_cleanup(1);
+    }
+
+    free(av);
+
+    return value_computed;
 }
 
 char* symbolic_differentiate(char *function, char *variable) {
-    char command[100] = "differentiate(";
+    char command[1000] = "differentiate(";
 
-    strcat(command,function);
-	strcat(command,",");
-	strcat(command,variable);
-	strcat(command,").");
-
+    snprintf(command,100,"differentiate(%s,%s).",function,variable);
+    // strcat(command,function);
+	// strcat(command,",");
+	// strcat(command,variable);
+	// strcat(command,").");
     return exec_wrapper(command); 
 }
 
@@ -88,15 +100,8 @@ char* evaluate(char *function, char *variable) {
     return exec_wrapper(command);
 }
 
-char* evaluate_expr(char *function, char *variable) {
-    char command[100] = "evaluate_expr(";
-
-    strcat(command,function);
-	strcat(command,",");
-	strcat(command,variable);
-	strcat(command,").");
-
-    return exec_wrapper(command);
+double evaluate_expr(char *function, char *variable) {
+    return exec_wrapper_("evaluate_expr",3,function,variable);
 }
 
 char* jacobian(__attribute__ ((unused)) char *function) {
